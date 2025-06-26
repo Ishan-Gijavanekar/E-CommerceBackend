@@ -17,6 +17,11 @@ const addProduct = async(req, res) => {
             isFeatured
         } = req.body
 
+        if (!name || !description || !richDescription || !brand || !price || !category || !countInStock || !rating || !numReviews ||!isFeatured) {
+            return res.status(401)
+            .json({message: "All fields are required"})
+        }
+
         const categoryExists = await Category.findById(category)
 
         if (!categoryExists) {
@@ -113,6 +118,11 @@ const updateProduct = async(req, res) => {
             numReviews,
             isFeatured
         } = req.body
+
+        if (!name || !description || !richDescription || !brand || !price || !category || !countInStock || !rating || !numReviews ||!isFeatured) {
+            return res.status(401)
+            .json({message: "All fields are required"})
+        }
 
         const productExists = await Product.findById(id)
 
@@ -214,4 +224,82 @@ const getProductByIdWithCategory = async(req, res) => {
     }
 }
 
-export {addProduct, getProducts, getProductById, updateProduct, deleteProduct}
+const getProductCount = async(req, res) => {
+    try {
+        const count = await Product.countDocuments((count) => count)
+
+        if (!count) {
+            return res.status(401)
+            .json({message: "No Products Found"})
+        }
+
+        return res.status(200)
+        .json({
+            count: count,
+            message: "Product count retrived successfully"
+        })
+    } catch (error) {
+        console.log(`Error in getting product count controller: ${error}`)
+        return res.status(500).json({message: "Internal server error"})
+    }
+}
+
+const getFeaturedProducts = async(req, res) => {
+    try {
+        const count = req.params.count ? req.params.count : 0
+        const featuredProducts = await Product.find({isFeatured: true}).limit(parseInt(count))
+
+        if (!featuredProducts) {
+            return res.status(401)
+            .json({message: "No featured products"})
+        }
+
+        return res.status(200)
+        .json({
+            featuredProducts,
+            message: "Featured products retrived successfully"
+        })
+    } catch (error) {
+        console.log(`Error in getting featured products controller: ${error}`)
+        return res.status(500).json({message: "Internal server error"})
+    }
+}
+
+const getProductsByCategory = async(req, res) => {
+    try {
+        let filter = {}
+        if (req.query.categories) {
+            filter = {category : req.query.categories.split(',')}
+        }
+
+        const products = await Product.find(filter).populate('category')
+
+        if (!products) {
+            return res.status(401)
+            .json({message: "products not available"})
+        }
+
+        return res.status(200)
+        .json({
+            products,
+            message: "Products Fetched successfully"
+        })
+       
+    } catch (error) {
+        console.log(`Error in getting product of specific category controller: ${error}`)
+        return res.status(500).json({message: "Internal server error"})
+    }
+}
+
+
+export {addProduct, 
+    getProducts, 
+    getProductById, 
+    updateProduct, 
+    deleteProduct, 
+    getProductsWithCategory, 
+    getProductByIdWithCategory,
+    getProductCount,
+    getFeaturedProducts,
+    getProductsByCategory
+}
