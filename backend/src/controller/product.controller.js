@@ -99,7 +99,53 @@ const getProductById = async(req, res) => {
 
 const updateProduct = async(req, res) => {
     try {
-        
+        const id = req.params
+        const {
+            name,
+            description,
+            richDescription,
+            image,
+            brand,
+            price,
+            category,
+            countInStock,
+            rating,
+            numReviews,
+            isFeatured
+        } = req.body
+
+        const productExists = await Product.findById(id)
+
+        if (!productExists) {
+            return res.status(401)
+            .json({message: "The product selected does not exsist"})
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            {
+                name,
+                description,
+                richDescription,
+                image,
+                brand,
+                price,
+                category,
+                countInStock,
+                rating,
+                numReviews,
+                isFeatured
+            },
+            {
+                new: true
+            }
+        )
+
+        return res.status(200)
+        .json({
+            updatedProduct,
+            message: "Product Updated Successfully"
+        })
     } catch (error) {
         console.log(`Error in update product controller: ${error}`)
         return res.status(500).json({message: "Internal server error"})
@@ -109,8 +155,61 @@ const updateProduct = async(req, res) => {
 const deleteProduct = async(req, res) => {
     try {
         
+        const id = req.params
+        const productExists = await Product.findById(id)
+
+        if (!productExists) {
+            return res.status(401)
+            .json({message: "The product selected does not exsist"})
+        }
+
+        await Product.findByIdAndDelete(id)
+
+        return res.status(200)
+        .json({message: "Product deleted successfully"})
     } catch (error) {
         console.log(`Error in delete product controller: ${error}`)
+        return res.status(500).json({message: "Internal server error"})
+    }
+}
+
+const getProductsWithCategory = async(req, res) => {
+    try {
+        const productList = await Product.find().populate('category')
+
+        if (!productList) {
+            return res.status(401)
+            .json({message: "Error in getting the products"})
+        }
+
+        return res.status(200)
+        .json({
+            productList,
+            message: "Products fetched successfully with category details"
+        })
+    } catch (error) {
+        console.log(`Error in getting products with category controller: ${error}`)
+        return res.status(500).json({message: "Internal server error"})
+    }
+}
+
+const getProductByIdWithCategory = async(req, res) => {
+    try {
+        const id = req.params
+        const product = await Product.findById(id).populate('category')
+
+        if (!product) {
+            return res.status(401)
+            .json({message: "Error in getting the product"})
+        }
+
+        return res.status(200)
+        .json({
+            product,
+            message: "Product fetched successfully with category details"
+        })
+    } catch (error) {
+        console.log(`Error in getting productwith category controller: ${error}`)
         return res.status(500).json({message: "Internal server error"})
     }
 }
