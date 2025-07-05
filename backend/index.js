@@ -20,9 +20,11 @@ app.use(cookieParser())
 // Routes import 
 import categoryRoutes from './src/routes/category.routes.js'
 import productRoutes from './src/routes/product.routes.js'
+import userRoutes from './src/routes/user.routes.js'
 
 app.use("/api/v1/categories", categoryRoutes)
 app.use("/api/v1/products", productRoutes)
+app.use("/api/v1/users", userRoutes)
 
 app.listen(port, () => {
     dbConnect();

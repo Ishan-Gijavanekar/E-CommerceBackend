@@ -15,15 +15,15 @@ const userSchema = new mongoose.Schema({
     },
     street: {
         type: String,
-        required: true,
+        default: ""
     },
     apartment: {
         type: String,
-        required: true,
+        default: ""
     },
     city: {
         type: String,
-        required: true,
+        default: ""
     },
     pinCode: {
         type: String,
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     phone: {
-        type: Number,
+        type: String,
         required: true,
     },
     isAdmin: {
